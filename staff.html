@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: url('https://cdn.discordapp.com/attachments/1150492827319541883/1193580142006644838/Z.png?ex=65ad3b21&is=659ac621&hm=c6bc3dd7b8338348ed6ae3bc30823fef395f90075fb08ff750239fbdbb583d04') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white; /* Set text color to white for better visibility on the background */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: white; /* Set text color to white for better visibility on the background */
+        }
+
+        input {
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #error-message {
+            color: red;
+        }
+
+        .go-to-index-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .go-to-index-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+    <title>Password-Protected Site</title>
+</head>
+<body>
+    <div class="container">
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" required>
+        <button onclick="checkPassword()">Login</button>
+        <p id="error-message"></p>
+    </div>
+
+    <button class="go-to-index-button" onclick="goToIndex()">Go to home page</button>
+
+    <script>
+        function checkPassword() {
+            var enteredPassword = document.getElementById('password').value;
+            var correctPassword = "1001";
+
+            if (enteredPassword === correctPassword) {
+                window.location.href = 'protected_page.html';
+            } else {
+                document.getElementById('error-message').innerText = 'Incorrect password. Please try again.';
+            }
+        }
+
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

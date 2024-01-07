@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art App</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #2c3e50; /* Dark background color */
+            color: #ecf0f1; /* Light text color */
+        }
+
+        #canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #34495e; /* Medium dark background color */
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 80vw;
+            cursor: crosshair; /* Set cursor to crosshair */
+        }
+
+        #canvas {
+            border: 2px solid #3498db; /* Blue border for the canvas */
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #colorPicker {
+            margin-top: 10px;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #2980b9; /* Blue color for the color picker */
+            color: #ecf0f1; /* Light text color */
+            width: 100%;
+            max-width: 200px;
+        }
+
+        #colorPalette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .color {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border: 2px solid #2c3e50; /* Dark border for color options */
+            border-radius: 50%;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .color:hover {
+            transform: scale(1.2);
+        }
+
+        #buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .button {
+            padding: 10px;
+            background-color: #27ae60; /* Green color for buttons */
+            color: #ecf0f1; /* Light text color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #219a52;
+        }
+
+        #colorSaver {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #555;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        #colorSaver input {
+            padding: 5px;
+            border: none;
+            border-bottom: 2px solid #555;
+            margin-right: 5px;
+            font-size: 1em;
+            width: 60%;
+        }
+
+        #colorSaver button {
+            padding: 5px;
+            background-color: #e67e22; /* Orange color for the save button */
+            color: #ecf0f1; /* Light text color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 40%;
+        }
+
+        #colorSaver button:hover {
+            background-color: #d35400;
+        }
+
+        #sizeSlider {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #sizeLabel {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <input type="color" id="colorPicker">
+        <div id="colorPalette"></div>
+        <div id="buttons">
+            <button class="button" onclick="clearCanvas()">Clear Canvas</button>
+            <button class="button" onclick="saveCanvas()">Save Image</button>
+            <button class="button" onclick="toggleShape()">Toggle Shape</button>
+        </div>
+        <div id="colorSaver">
+            <input type="text" id="colorName" placeholder="Color Name">
+            <button class="button" onclick="saveColor()">Save Color</button>
+        </div>
+        <input type="range" id="sizeSlider" min="1" max="100" step="1" value="10" oninput="updateSize()">
+        <div id="sizeLabel">Size: <span id="sizeValue">10</span></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const colorPalette = document.getElementById('colorPalette');
+        const colorSaver = document.getElementById('colorSaver');
+        const colorNameInput = document.getElementById('colorName');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const sizeLabel = document.getElementById('sizeLabel');
+        const shapeToggleButton = document.querySelector('#buttons .button');
+
+        let currentColor = '#000000';
+        let paletteColors = ['#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff', '#ff9900', '#9900cc', '#0099cc']; // Additional colors
+        let drawShape = 'circle';
+        let size = 10;
+
+        // Initialize color palette
+        function initializePalette() {
+            colorPalette.innerHTML = '';
+            paletteColors.forEach((color) => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'color';
+                colorDiv.style.backgroundColor = color;
+                colorDiv.addEventListener('click', () => changeColor(color));
+                colorPalette.appendChild(colorDiv);
+            });
+        }
+
+        function changeColor(color) {
+            currentColor = color;
+            colorPicker.value = color;
+        }
+
+        function addColorToPalette(color) {
+            paletteColors.push(color);
+            initializePalette();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvas() {
+            const image = new Image();
+            image.src = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image.src;
+            link.download = 'pixel_art.png';
+            link.click();
+        }
+
+        function drawShapeAtPosition(x, y) {
+            ctx.fillStyle = currentColor;
+            if (drawShape === 'square') {
+                ctx.fillRect(x - size / 2, y - size / 2, size, size);
+            } else {
+                ctx.beginPath();
+                ctx.arc(x, y, size / 2, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        function handleCanvasClick(event) {
+            const x = event.clientX - canvas.getBoundingClientRect().left;
+            const y = event.clientY - canvas.getBoundingClientRect().top;
+            drawShapeAtPosition(x, y);
+        }
+
+        function handleCanvasMouseMove(event) {
+            const x = event.clientX - canvas.getBoundingClientRect().left;
+            const y = event.clientY - canvas.getBoundingClientRect().top;
+            if (event.buttons === 1) {
+                drawShapeAtPosition(x, y);
+            }
+        }
+
+        function toggleShape() {
+            drawShape = drawShape === 'circle' ? 'square' : 'circle';
+            shapeToggleButton.textContent = `Toggle Shape (${drawShape})`;
+        }
+
+        function saveColor() {
+            const colorName = colorNameInput.value.trim();
+            if (colorName && !paletteColors.includes(currentColor)) {
+                addColorToPalette(currentColor);
+                colorSaver.textContent = `Color "${colorName}" saved!`;
+            } else {
+                colorSaver.textContent = 'Color already in palette or invalid name!';
+            }
+            colorNameInput.value = '';
+        }
+
+        function updateSize() {
+            size = parseInt(sizeSlider.value);
+            sizeLabel.textContent = `Size: ${size}`;
+            sizeValue.textContent = sizeSlider.value;
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('mousemove', handleCanvasMouseMove);
+        colorPicker.addEventListener('input', (e) => changeColor(e.target.value));
+
+        // Initialize
+        initializePalette();
+    </script>
+</body>
+</html>
+
+
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art App</title>
+    <style>
+        /* Your existing CSS styles */
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <!-- Your existing content -->
+
+        <!-- New button to redirect to index.html -->
+        <a href="index.html" class="button">
+            Home page
+        </a>
+    </div>
+
+    <script>
+        // Your existing JavaScript code
+    </script>
+</body>
+</html>

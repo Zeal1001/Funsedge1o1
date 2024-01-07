@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat System</title>
+    <style>
+        /* Your existing styles remain the same */
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <input type="text" id="username-input" placeholder="Enter your username">
+        <button id="login-button" onclick="login()">Login</button>
+    </div>
+    <div id="chat-container" style="display: none;">
+        <div id="chat-box"></div>
+        <div id="input-container">
+            <input type="text" id="message-input" placeholder="Type your message..." disabled>
+            <button id="send-button" onclick="sendMessage()" disabled>Send</button>
+            <button id="clear-button" onclick="clearMessages()">Clear All</button>
+            <input type="text" id="recipient-input" placeholder="Enter recipient for direct message">
+            <button id="direct-message-button" onclick="sendDirectMessage()" disabled>Send Direct Message</button>
+        </div>
+    </div>
+    <script>
+        const socket = new WebSocket("ws://localhost:8080");
+
+        // Keep track of the current user
+        let currentUser;
+
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened:', event);
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            handleMessage(data);
+        });
+
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket connection closed:', event);
+        });
+
+        socket.addEventListener('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
+
+        function handleMessage(data) {
+            const chatBox = document.getElementById("chat-box");
+
+            if (data.type === "login" && data.text) {
+                // Handle login message
+                addUserMessage(data.text);
+            } else if (data.type === "chat" && data.text && data.username) {
+                // Handle chat message
+                addUserMessage(`${data.username}: ${data.text}`);
+            } else if (data.type === "direct" && data.text && data.from && data.to) {
+                // Handle direct message
+                addUserMessage(`Direct Message from ${data.from} to ${data.to}: ${data.text}`);
+            } else if (data.type === "system" && data.text) {
+                // Handle system message
+                addUserMessage(`System: ${data.text}`);
+            }
+        }
+
+        function addUserMessage(message) {
+            const chatBox = document.getElementById("chat-box");
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "message-container";
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message";
+            messageDiv.innerText = message;
+
+            messageContainer.appendChild(messageDiv);
+            chatBox.appendChild(messageContainer);
+        }
+
+        function login() {
+            const usernameInput = document.getElementById("username-input");
+            const username = usernameInput.value.trim();
+
+            if (username !== "") {
+                currentUser = username;
+
+                // Disable the login container, enable the chat container
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("chat-container").style.display = "block";
+
+                // Enable the message input and send button
+                document.getElementById("message-input").disabled = false;
+                document.getElementById("send-button").disabled = false;
+                document.getElementById("direct-message-button").disabled = false;
+
+                // Send the login message through WebSocket
+                socket.send(JSON.stringify({ type: "login", username: username }));
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value.trim();
+
+            if (message !== "") {
+                // Send the message through WebSocket
+                socket.send(JSON.stringify({ type: "chat", text: message }));
+                messageInput.value = "";
+            }
+        }
+
+        function sendDirectMessage() {
+            const recipientInput = document.getElementById("recipient-input");
+            const messageInput = document.getElementById("message-input");
+            const recipient = recipientInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (recipient !== "" && message !== "") {
+                // Send the direct message through WebSocket
+                socket.send(JSON.stringify({ type: "direct", text: message, recipient: recipient }));
+                messageInput.value = "";
+            }
+        }
+
+        // Add event listener for 'Enter' key to send messages
+        document.getElementById("message-input").addEventListener("keyup", function (event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Your existing 'clearMessages' function remains the same
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* Background color, change as needed */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Add any additional styling for your content here */
+
+        button {
+            margin-top: auto; /* Push the button to the bottom */
+            background-color: purple;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Your website content goes here -->
+
+    <button onclick="redirectToIndex()">Go to index.html</button>
+
+    <script>
+        function redirectToIndex() {
+            // Redirect to index.html
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
