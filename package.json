@@ -4,14 +4,16 @@
   "description": "Your Electron App",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "electron main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "electron-builder"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ws": "^8.16.0",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
     "electron": "^16.2.8",
     "electron-builder": "^22.13.1"
   }
