@@ -10,11 +10,9 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "electron": "^16.2.8",
-    "electron-builder": "^22.13.1"
-  },
   "dependencies": {
+    "electron": "^16.2.8",
+    "electron-builder": "^22.13.1",
     "ws": "^8.16.0"
   }
 }
